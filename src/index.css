@@ -7,11 +7,36 @@ body {
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	background-image: url('/assets/background.webp');
+	background-image: url('/assets/background.png');
 	background-size: cover;
 	background-position: center;
 	background-attachment: fixed;
 	margin: 0;
 	padding: 0;
 	font-family: sans-serif;
+}
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.4);
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

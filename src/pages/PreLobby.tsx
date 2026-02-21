@@ -5,9 +5,7 @@ const PreLobby = () => {
 
 	const navigate = useNavigate();
 
-	const joinRoom = (formData) => {
-		event.preventDefault();
-
+	const joinRoom = (formData: FormData) => {
 
 		const username = formData.get('username');
 		const roomId = formData.get('roomId');
