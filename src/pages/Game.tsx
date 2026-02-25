@@ -39,7 +39,7 @@ const Game = () => {
 			navigate('/');
 		}
 
-		socketRef.current = io('http://10.135.210.176:3000');
+		socketRef.current = io(import.meta.env.VITE_SERVER_URL);
 
 		const socket = socketRef.current;
 		socket.removeAllListeners();
