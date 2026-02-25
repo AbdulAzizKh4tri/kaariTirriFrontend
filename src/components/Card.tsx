@@ -1,7 +1,12 @@
+import { playSound } from '../utils'
+
 const Card = ({ theme, socket, suit, number, disabled, count }) => {
   const handleClick = () => {
-    if (!disabled) 
+    if (!disabled){
 		socket.emit('cardPlayed', { suit, number });
+		playSound('card')
+	}
+
   };
 
   const rows = Math.ceil(count / 7);

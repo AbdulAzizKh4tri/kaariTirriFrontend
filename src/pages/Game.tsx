@@ -8,8 +8,11 @@ import Auction from '../components/Auction';
 import PowerSuitSelector from '../components/PowerSuitSelector'
 import PartnerSelector from '../components/PartnerSelector'
 import Round from '../components/Round'
-
+import ChatBox from '../components/ChatBox'
 import Info from '../components/Info';
+import GameStartOverlay from '../components/GameStartOverlay'
+
+import { playSound } from '../utils';
 
 const Game = () => {
 	const { roomId } = useParams();
@@ -21,23 +24,23 @@ const Game = () => {
 	const user = state?.username;
 
 	const [overlayOpen, setOverlayOpen] = useState(true);
-	const [playerList, setPlayerList] = useState([]);
+	const [memberList, setMemberList] = useState([]);
 	const [publicGameState, setPublicGameState] = useState(null);
 	const [playerGameState, setPlayerGameState] = useState(null);
+
+	const [systemMessages, setSystemMessages] = useState([]);
+	const [userMessages, setUserMessages] = useState([]);
 	
 
 	const socketRef = useRef(null);
-
-	const handleStartGame = () => {
-		socketRef.current?.emit('gameStart');
-	};
 
 	useEffect(() => {
 		if(!user || roomId == "") {
 			navigate('/');
 		}
 
-		socketRef.current = io('http://localhost:3000');
+		socketRef.current = io('http://10.135.210.176:3000');
+
 		const socket = socketRef.current;
 		socket.removeAllListeners();
 		socket.emit('joinRoom', { roomId, name: user });
@@ -51,8 +54,8 @@ const Game = () => {
 			console.log("Disconnected");
 		});
 
-		socket.on('playerList', (listOfPlayers) => {
-			setPlayerList(listOfPlayers);
+		socket.on('memberList', (listOfMembers) => {
+			setMemberList(listOfMembers);
 		});
 
 		socket.on('gameStateUpdate', (data) => {
@@ -60,16 +63,34 @@ const Game = () => {
 			console.log(data);
 			setPublicGameState(data.public);
 			setPlayerGameState(data.playerGameState);
+
+			if(data.public.stage == "gameOver") {
+
+				if(data.public.gameWinners.includes(user)) {
+					playSound('victory')
+				} else {
+					playSound('defeat')
+				}
+
+			}
 		});
 
 		socket.on('message', (msg) => {
-			console.log(msg);
+			setSystemMessages(prev => [...prev, msg]);
+			playSound('message');
 		});
 
-		socket.on('bulkMessage', (msgs)=>{
-			msgs.forEach(msg => {
-				console.log(msg);
-			})
+		socket.on('bulkMessage', (msgs) => {
+			setSystemMessages(prev => [...prev, ...msgs]);
+		});
+
+		socket.on('userMessage', (msg) => {
+			setUserMessages(prev => [...prev, msg]);
+			playSound('userMessage');
+		});
+
+		socket.on('chatHistory', (msgs) => {
+			setUserMessages(prev => [...prev, ...msgs]);
 		});
 
 		return () => {
@@ -84,7 +105,14 @@ const Game = () => {
 			<h2>Please rotate your phone to landscape</h2>
 		</div>
 
+		<div className="portrait:hidden">
+			{overlayOpen && (
+				<GameStartOverlay socket={socketRef.current} memberList={memberList}/>
+			)}
+		</div>
+
 		<div className={`portrait:hidden grid grid-cols-4 grid-rows-2 h-screen w-screen ${overlayOpen ? 'pointer-events-none' : ''}`}>
+
 			<div className="col-span-3 h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
 			{
 				publicGameState?.stage == "auction" && (
@@ -124,46 +152,18 @@ const Game = () => {
 			  })()}
 			</div>
 
-			<div className="h-full col-start-4 row-start-1 row-span-2 justify-center bg-[#2c3839] p-2 border-l-[2px] border-[#a56d00]">
-				<div className="bg-[#202c2d] p-1 rounded-lg">
-					<div className="rounded-lg bg-[#2c3839] flex justify-center items-center text-[#fcfdfc] mb-1 font-bold text-[3vh] h-[5vh]">Room: {roomId}</div>
-					<div className="h-[45vh]">
+			<div className="h-full col-start-4 row-start-1 row-span-2 bg-[#2c3839] p-2 border-l-[2px] border-[#a56d00] pointer-events-auto">
+				<div className="h-full flex flex-col bg-[#202c2d] p-1 rounded-lg gap-1">
+					<div className="rounded-lg bg-[#2c3839] flex justify-center items-center text-[#fcfdfc] font-bold text-[3vh] h-[5vh] shrink-0">Room: {roomId}</div>
+					<div className="h-[45vh] shrink-0">
 						<Info socket={socketRef.current} pgs={publicGameState} user={user} theme={theme}/>
+					</div>
+					<div className="flex-1 min-h-0">
+						<ChatBox socket={socketRef.current} user={user} systemMessages={systemMessages} userMessages={userMessages}/>
 					</div>
 				</div>
 			</div>
 		</div>			
-
-		{overlayOpen && (
-		  <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
-			<div className="w-full max-w-lg bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
-			  <div className="flex flex-col items-center gap-6">
-				<h2 className="text-white font-bold">Player List</h2>
-
-				<div className="w-full">
-					<div className="grid grid-cols-3">
-					  {playerList.map((player, index) => (
-						<div 
-						  key={`playerList-${player}`} 
-						  className="px-3 py-4 text-center"
-						>
-						  <span className="text-white font-semibold">{player}</span>
-						</div>
-					  ))}
-					</div>
-				  </div>
-
-				<button
-				  onClick={handleStartGame}
-				  className="w-full mt-1 px-4 py-3 bg-[#d70040] text-white rounded-lg font-semibold text-sm shadow-sm hover:shadow-lg"
-				>
-				Start Game
-				</button>
-			  </div>
-			</div>
-		  </div>
-		)}
-
 		</>
 	)
 }

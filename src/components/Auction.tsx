@@ -26,7 +26,7 @@ const Auction = ({socket, pgs, user}) => {
 	}
 
 	return (
-		<div className="h-full w-full flex items-center justify-center p-5">
+		<div className="h-full w-full flex items-center justify-center p-1">
 			<div className="grid grid-cols-2 grid-rows-5 p-2 bg-[#202020] bg-opacity-20 rounded-lg w-[40%] h-[90%]">
 				<div className="col-span-2 flex items-center justify-center text-[1.25vw] text-[#fafafa] font-bold bg-[#2c3839] rounded-lg m-1"> Auction </div>
 				<div className="col-span-1 row-span-2 flex items-center justify-center text-center text-[1.25vw] text-[#fafafa] bg-[#2c3839] rounded-lg m-1"> 

@@ -4,6 +4,10 @@ const Info = ({socket, pgs, user, theme}) => {
 
 	const stage = pgs?.stage ?? ""
 
+	const restartGame = () => {
+		socket.emit('gameStart');
+	}
+
 	const auctionInfo = () => {
 		const bidTurn = pgs.bidders[pgs.currentBidIndex] ?? ""
 
@@ -26,7 +30,7 @@ const Info = ({socket, pgs, user, theme}) => {
 						{
 							pgs.bidders.map((bidder, index) => {
 								return (
-									<li key={`bidder-${bidder}`} className={`${bidTurn == bidder ? "font-bold text-[#ff9700] list-['>'] pl-1" : ""}`}>{bidder == user? "YOU" : bidder}</li>
+									<li key={`bidder-${bidder}`} className={`${bidTurn == bidder ? "font-bold text-[#ff9700] list-['>'] pl-1" : ""}`}>{bidder}</li>
 								)
 							})
 						}
@@ -38,7 +42,7 @@ const Info = ({socket, pgs, user, theme}) => {
 		)
 	}
 
-	const selectionsInfo = () => {
+	const generalInfo = () => {
 
 		return (
 			<>
@@ -56,7 +60,7 @@ const Info = ({socket, pgs, user, theme}) => {
 					pgs?.powerSuit && 
 					<div className="h-[15vh] flex items-center justify-center">
 						<div className="text-center text-[#fafafa]">
-							<div className="text-[2.5vh] flex items-center justify-center m-0">Power Suit</div>
+							<div className="text-[2.5vh] flex items-center justify-center m-0">Power Suit ({pgs.highestBidder})</div>
 							<div className="flex items-center justify-center m-0">
 								<img src={`/assets/cards/${theme}/${pgs.powerSuit.toLowerCase()}.png`}
 									alt="powerSuit {pgs.powerSuit}"
@@ -93,15 +97,48 @@ const Info = ({socket, pgs, user, theme}) => {
 	}
 
 
+	const gameOverMenu = () => {
+		return (
+			<>
+			<div className="w-full h-[45vh] grid grid-cols-3 p-2 rounded-lg bg-[#2c3839] text-[1.4vw] text-[#fcfdfc]">
+				<div className="h-[5vh] col-span-3 text-center text-[3vh] text-[#fafafa] bg-[#fe4c40] rounded-lg mb-1"> {title(stage)} </div>
+				<div className="col-span-3 items-center justify-center bg-[#df9822] text-[#0d405d] font-bold rounded-lg">
+					<div className="flex items-center justify-center">Winners!</div>
+					<div className="flex items-center justify-center">
+						<ul className="ml-2">
+						{
+							pgs.gameWinners.map((winner, index) => {
+								return (
+									<li key={`winner-${winner}`}>{winner}</li>
+								)
+							})
+						}
+						</ul>
+					</div>
+				</div>
+				<button className="col-span-3">
+					<div 
+						className="h-[5vh] flex items-center justify-center text-[3vh] text-[#fafafa] bg-[#0092ff] rounded-lg mb-1"
+						onClick={restartGame}
+					> Play Again </div>
+				</button>
+				<div>
+				</div>
+			</div>
+			</>
+		)
+	}
+
+
 	switch(stage) {
 		case "auction":
 			return auctionInfo()
-			break;
 		case "powerSuitSelection":
 		case "partnerSelection":
 		case "playing":
-			return selectionsInfo()
-			break;
+			return generalInfo()
+		case "gameOver":
+			return gameOverMenu()
 		default:
 			return <div></div>
 	}
