@@ -17,10 +17,10 @@ const PreLobby = () => {
 
 
 	return (
-		<div className="min-h-screen flex items-center justify-center px-4">
+		<div className="flex items-center justify-center px-4">
 			<div className="w-full max-w-lg bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
 				<div className="flex flex-col items-center gap-6">
-					<img src={logo} alt="Kaari Tirri" className="object-contain" />
+					<img src={logo} alt="Kaari Tirri" className="object-contain h-[30vh] w-auto" />
 
 					<form action={joinRoom} className="w-full flex flex-col gap-4">
 						<input
@@ -37,6 +37,7 @@ const PreLobby = () => {
 							name="roomId"
 							placeholder="Room ID"
 							aria-label="Room ID"
+							value="1"
 						/>
 
 						<button

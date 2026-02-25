@@ -1,6 +1,7 @@
 const Card = ({ theme, socket, suit, number, disabled, count }) => {
   const handleClick = () => {
-    if (!disabled) socket.emit('cardPlayed', { suit, number });
+    if (!disabled) 
+		socket.emit('cardPlayed', { suit, number });
   };
 
   const rows = Math.ceil(count / 7);

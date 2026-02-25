@@ -5,6 +5,10 @@ import { io } from 'socket.io-client';
 import logo from '/assets/logo.png'
 import Card from '../components/Card';
 import Auction from '../components/Auction';
+import PowerSuitSelector from '../components/PowerSuitSelector'
+import PartnerSelector from '../components/PartnerSelector'
+import Round from '../components/Round'
+
 import Info from '../components/Info';
 
 const Game = () => {
@@ -29,13 +33,13 @@ const Game = () => {
 	};
 
 	useEffect(() => {
-		console.log(roomId);
 		if(!user || roomId == "") {
 			navigate('/');
 		}
 
 		socketRef.current = io('http://localhost:3000');
 		const socket = socketRef.current;
+		socket.removeAllListeners();
 		socket.emit('joinRoom', { roomId, name: user });
 
 
@@ -62,13 +66,17 @@ const Game = () => {
 			console.log(msg);
 		});
 
-		socket.on('bulkMessage', (msgs)=>{});
+		socket.on('bulkMessage', (msgs)=>{
+			msgs.forEach(msg => {
+				console.log(msg);
+			})
+		});
 
 		return () => {
 		  socket.disconnect();
 		};
 
-	}, [navigate])
+	}, [navigate, roomId, user])
 
 	return (
 		<>
@@ -76,32 +84,53 @@ const Game = () => {
 			<h2>Please rotate your phone to landscape</h2>
 		</div>
 
-		<div className="portrait:hidden grid grid-cols-4 grid-rows-2 h-screen w-screen {overlayOpen ? 'pointer-events-none' : ''}">
-			<div className="col-span-3">
-			{publicGameState?.stage == "auction" && (
-				<Auction />
-			)}
+		<div className={`portrait:hidden grid grid-cols-4 grid-rows-2 h-screen w-screen ${overlayOpen ? 'pointer-events-none' : ''}`}>
+			<div className="col-span-3 h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
+			{
+				publicGameState?.stage == "auction" && (
+					<Auction socket={socketRef.current} pgs={publicGameState} user={user}/>
+				)
+			}
+			{
+				publicGameState?.stage == "powerSuitSelection" && (
+					<PowerSuitSelector theme={theme} socket={socketRef.current} user={user} pgs={publicGameState}/>
+				)
+			}
+			{
+				publicGameState?.stage == "partnerSelection" && (
+					<PartnerSelector theme={theme} socket={socketRef.current} user={user} pgs={publicGameState} hand={playerGameState?.hand}/>
+				)
+			}
+			{
+				publicGameState?.stage == "playing" && (
+					<Round theme={theme} socket={socketRef.current} user={user} pgs={publicGameState}/>
+				)
+			}
 			</div>
 			
-			<div className="col-span-3 overflow-hidden h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
+			<div className="col-span-3 h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
 			  {(()=>{
-				const playerTurn = publicGameState?.players[playerGameState?.turnIndex] == user;
+				const playerTurn = publicGameState?.players[publicGameState?.turnIndex] == user;
 				
 				return playerGameState?.hand.map((card, index) => (
-				  <Card key={index}
+				  <Card key={`handCard-${card.suit}-${card.number}`}
 					theme={theme}
 					socket={socketRef.current}
 					suit={card.suit}
 					number={card.number}
-					disabled={playerTurn ? false : false}//TODO: CHANGE SECOND TO TRUE
+					disabled={playerTurn ? false : true}
 				  />
 				))
 			  })()}
 			</div>
 
-			<div className="col-start-4 row-start-1 row-span-2 justify-center bg-[#2c3839] p-5">
-				<div className="rounded-lg bg-[#0065aa] text-[1.5rem] text-center text-[#d3e1ea] mb-2" >Room: {roomId}</div>
-				<Info socket={socketRef.current} pgs={publicGameState} user={user}/>
+			<div className="h-full col-start-4 row-start-1 row-span-2 justify-center bg-[#2c3839] p-2 border-l-[2px] border-[#a56d00]">
+				<div className="bg-[#202c2d] p-1 rounded-lg">
+					<div className="rounded-lg bg-[#2c3839] flex justify-center items-center text-[#fcfdfc] mb-1 font-bold text-[3vh] h-[5vh]">Room: {roomId}</div>
+					<div className="h-[45vh]">
+						<Info socket={socketRef.current} pgs={publicGameState} user={user} theme={theme}/>
+					</div>
+				</div>
 			</div>
 		</div>			
 
@@ -109,16 +138,16 @@ const Game = () => {
 		  <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
 			<div className="w-full max-w-lg bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
 			  <div className="flex flex-col items-center gap-6">
-				<h2 className="text-white text-2xl font-bold">Player List</h2>
+				<h2 className="text-white font-bold">Player List</h2>
 
 				<div className="w-full">
 					<div className="grid grid-cols-3">
 					  {playerList.map((player, index) => (
 						<div 
-						  key={index} 
+						  key={`playerList-${player}`} 
 						  className="px-3 py-4 text-center"
 						>
-						  <span className="text-white text-lg font-semibold">{player}</span>
+						  <span className="text-white font-semibold">{player}</span>
 						</div>
 					  ))}
 					</div>
