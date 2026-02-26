@@ -1,4 +1,4 @@
-import {title} from "../utils.tsx"
+import {title} from "../utils"
 
 const Info = ({socket, pgs, user, theme}) => {
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import PreLobby from './pages/PreLobby.tsx';
-import Game from './pages/Game.tsx';
+import PreLobby from './pages/PreLobby';
+import Game from './pages/Game';
 
 function App() {
   return (

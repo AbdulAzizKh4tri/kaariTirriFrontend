@@ -5,7 +5,7 @@ const PreLobby = () => {
 
 	const navigate = useNavigate();
 
-	const joinRoom = (formData: FormData) => {
+	const joinRoom = (formData) => {
 
 		const username = formData.get('username');
 		const roomId = formData.get('roomId');
@@ -37,7 +37,6 @@ const PreLobby = () => {
 							name="roomId"
 							placeholder="Room ID"
 							aria-label="Room ID"
-							value="1"
 						/>
 
 						<button
