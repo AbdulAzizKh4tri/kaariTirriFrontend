@@ -24,7 +24,7 @@ const PreLobby = () => {
 
 					<form action={joinRoom} className="w-full flex flex-col gap-4">
 						<input
-							className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#667eea]/20 transition"
+							className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-[#fafafa] placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#667eea]/20 transition"
 							type="text"
 							name="username"
 							placeholder="Name"
@@ -32,7 +32,7 @@ const PreLobby = () => {
 						/>
 
 						<input
-							className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#667eea]/20 transition"
+							className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-[#fafafa] placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#667eea]/20 transition"
 							type="text"
 							name="roomId"
 							placeholder="Room ID"
