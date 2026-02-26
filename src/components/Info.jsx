@@ -47,7 +47,15 @@ const Info = ({socket, pgs, user, theme}) => {
 		return (
 			<>
 			<div className="w-full h-[45vh] p-1 rounded-lg bg-[#2c3839] text-[1.4vw] text-[#fcfdfc]">
-				<div className="h-[5vh] text-center text-[3vh] text-[#fafafa] bg-[#0092ff] rounded-lg mb-1"> {title(stage)} </div>
+				{stage != "playing" &&
+					<div className="h-[5vh] row-span-1 col-span-3 text-center text-[3vh] text-[#fafafa] bg-[#0092ff] rounded-lg mb-1"> {title(stage)} </div>
+				}
+				{stage == "playing" &&
+					<div className="h-[5vh] row-span-1 col-span-3 flex justify-between items-center text-[3vh] text-[#fafafa] rounded-lg mb-1"> 
+						<span>{pgs.highestBidder}:{pgs.highestBid}</span>
+						<span>{title(stage)}</span>
+					</div>
+				}
 				{
 					!(pgs?.powerSuit) &&
 					<div className="h-[15vh] flex items-center justify-center">
@@ -102,7 +110,7 @@ const Info = ({socket, pgs, user, theme}) => {
 			<>
 			<div className="w-full h-[45vh] grid grid-cols-3 p-2 rounded-lg bg-[#2c3839] text-[1.4vw] text-[#fcfdfc]">
 				<div className="h-[5vh] col-span-3 text-center text-[3vh] text-[#fafafa] bg-[#fe4c40] rounded-lg mb-1"> {title(stage)} </div>
-				<div className="col-span-3 items-center justify-center bg-[#df9822] text-[#0d405d] font-bold rounded-lg">
+				<div className="col-span-3 items-center justify-center bg-[#df9822] text-[#0d405d] font-bold rounded-lg mb-1">
 					<div className="flex items-center justify-center">Winners!</div>
 					<div className="flex items-center justify-center">
 						<ul className="ml-2">
@@ -116,13 +124,19 @@ const Info = ({socket, pgs, user, theme}) => {
 						</ul>
 					</div>
 				</div>
-				<button className="col-span-3">
-					<div 
-						className="h-[5vh] flex items-center justify-center text-[3vh] text-[#fafafa] bg-[#0092ff] rounded-lg mb-1"
-						onClick={restartGame}
-					> Play Again </div>
-				</button>
-				<div>
+				<div className="col-span-3 items-center justify-center bg-[#1c2829] text-[#fcfdfc] font-bold rounded-lg">
+					<div className="flex items-center justify-center">Losers!</div>
+					<div className="flex items-center justify-center">
+						<ul className="ml-2">
+						{
+							pgs.players.filter(player => !pgs.gameWinners.includes(player)).map((loser, index) => {
+								return (
+									<li key={`loser-${loser}`}>{loser}</li>
+								)
+							})
+						}
+						</ul>
+					</div>
 				</div>
 			</div>
 			</>

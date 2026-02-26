@@ -1,4 +1,4 @@
-const GameStartOverlay = ({memberList, socket}) => {
+const GameStartOverlay = ({memberList, socket, pgs, gameResults}) => {
 
 	const handleStartGame = () => {
 		socket.emit('gameStart');
@@ -8,7 +8,7 @@ const GameStartOverlay = ({memberList, socket}) => {
      	  <div className="fixed top-0 left-0 bottom-0 w-3/4 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
 			<div className="w-full max-w-lg bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
 			  <div className="flex flex-col items-center gap-6">
-				<h2 className="text-white font-bold">Member List</h2>
+				<h2 className="text-white font-bold">Players ready</h2>
 
 				<div className="w-full">
 					<div className="grid grid-cols-3">

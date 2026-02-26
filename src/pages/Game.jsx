@@ -11,7 +11,8 @@ import Round from '../components/Round'
 import ChatBox from '../components/ChatBox'
 import Info from '../components/Info';
 import GameStartOverlay from '../components/GameStartOverlay'
-import GameOver from '../components/GameOver'
+import GameOverOverlay from '../components/GameOverOverlay'
+import GameHistoryOverlay from '../components/GameHistoryOverlay'
 
 import { playSound } from '../utils';
 
@@ -28,6 +29,8 @@ const Game = () => {
 	const [memberList, setMemberList] = useState([]);
 	const [publicGameState, setPublicGameState] = useState(null);
 	const [playerGameState, setPlayerGameState] = useState(null);
+	const [gameResults, setGameResults] = useState(null);
+	const [historyOpen, setHistoryOpen] = useState(false);
 
 	const [systemMessages, setSystemMessages] = useState([]);
 	const [userMessages, setUserMessages] = useState([]);
@@ -64,6 +67,7 @@ const Game = () => {
 			console.log(data);
 			setPublicGameState(data.public);
 			setPlayerGameState(data.playerGameState);
+			setGameResults(data.gameResults);
 
 			if(data.public.stage == "gameOver") {
 
@@ -112,6 +116,18 @@ const Game = () => {
 			)}
 		</div>
 
+		<div className="portrait:hidden">
+			{historyOpen && (
+				<GameHistoryOverlay gameResults={gameResults ?? []} onClose={() => setHistoryOpen(false)}/>
+			)}
+		</div>
+
+		<div className="portrait:hidden">
+			{publicGameState?.stage == "gameOver" && (
+				<GameOverOverlay socket={socketRef.current} user={user} memberList={memberList} pgs={publicGameState} gameResults={gameResults}/>
+			)}
+		</div>
+
 		<div className={`portrait:hidden grid grid-cols-4 grid-rows-2 h-screen w-screen ${overlayOpen ? 'pointer-events-none' : ''}`}>
 
 			<div className="col-span-3 h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
@@ -135,32 +151,43 @@ const Game = () => {
 					<Round theme={theme} socket={socketRef.current} user={user} pgs={publicGameState}/>
 				)
 			}
-			{
-				publicGameState?.stage == "gameOver" && (
-					<GameOver socket={socketRef.current} user={user} pgs={publicGameState}/>
-				)
-			}
 			</div>
 			
 			<div className="col-span-3 h-full flex flex-wrap justify-center items-center content-center p-1 gap-1">
 			  {(()=>{
-				const playerTurn = publicGameState?.players[publicGameState?.turnIndex] == user;
-				
-				return playerGameState?.hand.map((card, index) => (
-				  <Card key={`handCard-${card.suit}-${card.number}`}
-					theme={theme}
-					socket={socketRef.current}
-					suit={card.suit}
-					number={card.number}
-					disabled={playerTurn ? false : true}
-				  />
-				))
+					const playerTurn = publicGameState?.players[publicGameState?.turnIndex] == user;
+
+					const leadSuit = publicGameState?.round?.length > 0 ? publicGameState.round[0].card.suit : null;
+					const handHasLeadSuit = leadSuit ? playerGameState?.hand.some(c => c.suit === leadSuit) : false;
+
+					return playerGameState?.hand.map((card, index) => {
+					  const isValid = playerTurn && (!leadSuit || card.suit === leadSuit || !handHasLeadSuit);
+					  return (
+						<Card key={`handCard-${card.suit}-${card.number}`}
+						  theme={theme}
+						  socket={socketRef.current}
+						  suit={card.suit}
+						  number={card.number}
+						  disabled={!isValid}
+						/>
+					  );
+					})
 			  })()}
 			</div>
 
 			<div className="h-full col-start-4 row-start-1 row-span-2 bg-[#2c3839] p-2 border-l-[2px] border-[#a56d00] pointer-events-auto">
 				<div className="h-full flex flex-col bg-[#202c2d] p-1 rounded-lg gap-1">
-					<div className="rounded-lg bg-[#2c3839] flex justify-center items-center text-[#fcfdfc] font-bold text-[3vh] h-[5vh] shrink-0">Room: {roomId}</div>
+					<div className="rounded-lg bg-[#2c3839] flex justify-between items-center text-[#fcfdfc] font-bold text-[3vh] h-[5vh] shrink-0 px-3">
+					<span>Room: {roomId}</span>
+					{(gameResults?.length > 0) && (
+						<button
+							onClick={() => setHistoryOpen(true)}
+							className="text-[#aaaaaa] hover:text-[#fafafa] text-[1vw] font-normal transition-colors"
+						>
+							History ({gameResults.length})
+						</button>
+					)}
+				</div>
 					<div className="h-[45vh] shrink-0">
 						<Info socket={socketRef.current} pgs={publicGameState} user={user} theme={theme}/>
 					</div>
