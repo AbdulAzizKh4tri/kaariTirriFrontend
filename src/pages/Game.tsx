@@ -11,6 +11,7 @@ import Round from '../components/Round'
 import ChatBox from '../components/ChatBox'
 import Info from '../components/Info';
 import GameStartOverlay from '../components/GameStartOverlay'
+import GameOver from '../components/GameOver'
 
 import { playSound } from '../utils';
 
@@ -132,6 +133,11 @@ const Game = () => {
 			{
 				publicGameState?.stage == "playing" && (
 					<Round theme={theme} socket={socketRef.current} user={user} pgs={publicGameState}/>
+				)
+			}
+			{
+				publicGameState?.stage == "gameOver" && (
+					<GameOver socket={socketRef.current} user={user} pgs={publicGameState}/>
 				)
 			}
 			</div>
