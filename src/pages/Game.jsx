@@ -158,7 +158,7 @@ const Game = () => {
 					const playerTurn = publicGameState?.players[publicGameState?.turnIndex] == user;
 
 				  	const roundLength = publicGameState?.round?.length
-					const leadSuit = roundLength > 0 && roundlength < publicGameState.players.length ? publicGameState.round[0].card.suit : null;
+					const leadSuit = roundLength && roundLength < publicGameState?.players?.length ? publicGameState.round[0].card.suit : null;
 					const handHasLeadSuit = leadSuit ? playerGameState?.hand.some(c => c.suit === leadSuit) : false;
 
 					return playerGameState?.hand.map((card, index) => {
