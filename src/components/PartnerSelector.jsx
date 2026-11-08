@@ -4,14 +4,13 @@ import { hasCard } from "../utils";
 const PartnerSelector = ({user, socket, theme, pgs, hand}) => {
 
 	const [overlayOpen, setOverlayOpen] = useState(false);
-	const [partners, setPartners] = useState([]);
+	const [partnerCards, setPartnerCards] = useState([]);
 
     const partnerCount = Math.ceil(pgs.playerCount / 2) - 1;
 
 	const selectPartners = () => {
-		if(partners.length < partnerCount) return
-		console.log("partners: ",partners)
-		socket.emit('partnersSelected', partners);
+		if(partnerCards.length < partnerCount) return
+		socket.emit('partnersSelected', partnerCards);
 		setOverlayOpen(false);
 	}
 
@@ -19,11 +18,11 @@ const PartnerSelector = ({user, socket, theme, pgs, hand}) => {
 	const toggleCard = (card, isHandCard) => {
 		if(isHandCard) return
 
-		if(hasCard(partners, card)) {
-			setPartners(partners.filter(partner => partner != card));
+		if(hasCard(partnerCards, card)) {
+			setPartnerCards(partnerCards.filter(partner => partner != card));
 		} else {
-			if(partners.length >= partnerCount) return
-			setPartners([...partners, card]);
+			if(partnerCards.length >= partnerCount) return
+			setPartnerCards([...partnerCards, card]);
 		}
 	}
 
@@ -57,7 +56,7 @@ const PartnerSelector = ({user, socket, theme, pgs, hand}) => {
 				  Close
 				</button>
 				<span className="justify-self-center text-center text-[1.25vw] text-[#fafafa]">
-					Partners selected: {partners.length} / {partnerCount}
+					Partners selected: {partnerCards.length} / {partnerCount}
 				</span>
 				<button
 				  className="justify-self-end p-2 bg-[#00ff92] rounded-lg font-semibold text-sm"
@@ -72,7 +71,7 @@ const PartnerSelector = ({user, socket, theme, pgs, hand}) => {
 				  {pgs.defaultDeck.map((card, index) => {
 					
 					const isHandCard = hasCard(hand, card)
-					const isPartner = hasCard(partners, card)
+					const isPartner = hasCard(partnerCards, card)
 					return(
 						<div 
 							key={`${card.suit}-${card.number}`}

@@ -4,7 +4,6 @@ const Card = ({ theme, socket, suit, number, disabled, count }) => {
   const handleClick = () => {
     if (!disabled){
 		socket.emit('cardPlayed', { suit, number });
-		playSound('card')
 	}
 
   };

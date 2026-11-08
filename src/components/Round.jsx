@@ -1,4 +1,4 @@
-const Round = ({user, socket, theme, pgs}) => {
+const Round = ({socket, theme, pgs}) => {
 
 	return (
 		<div className="h-full w-full">

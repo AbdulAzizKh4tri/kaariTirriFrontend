@@ -68,30 +68,33 @@ const Info = ({socket, pgs, user, theme}) => {
 					pgs?.powerSuit && 
 					<div className="h-[15vh] flex items-center justify-center">
 						<div className="text-center text-[#fafafa]">
-							<div className="text-[2.5vh] flex items-center justify-center m-0">Power Suit ({pgs.highestBidder})</div>
+							<div className="text-[2.5vh] flex items-center justify-center m-0">Power Suit</div>
 							<div className="flex items-center justify-center m-0">
 								<img src={`/assets/cards/${theme}/${pgs.powerSuit.toLowerCase()}.png`}
 									alt="powerSuit {pgs.powerSuit}"
-									className=" h-[12vh] object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.5)]"
+									className=" h-[10vh] object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.5)]"
 								/>
 							</div>
 						</div>
 					</div>
 				}
 				{
-					pgs?.partners.length > 0 && 
+					pgs?.partnerCards.length > 0 && 
 					<div className="h-[15vh] my-2 flex items-center justify-center overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 						<div className="text-center text-[#fafafa]">
-							<div className="text-[2.5vh] flex items-center justify-center m-0">Partners</div>
+						<div className="text-[2vh] flex items-center justify-center m-0">Partners</div>
 							<div className="flex items-center justify-center m-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 								{	
-									pgs.partners.map((partner, index) => {
+									pgs.partnerCards.map((partnerCard, index) => {
 										return (
-											<img src={`/assets/cards/${theme}/${partner.suit.toLowerCase()}/${partner.number.toLowerCase()}.png`}
-												key={`partner-${partner.number} of ${partner.suit}`}
-												alt="powerSuit {pgs.powerSuit}"
-												className=" h-[11vh] mx-1 object-contain"
-											/>
+											<div className="p-0 bg-[#2c3839]/50 rounded-lg mx-1" key={`partnerCard-${partnerCard.number} of ${partnerCard.suit}`} >
+												<img src={`/assets/cards/${theme}/${partnerCard.suit.toLowerCase()}/${partnerCard.number.toLowerCase()}.png`}
+													alt="powerSuit {pgs.powerSuit}"
+													className=" h-[10vh] mx-1 object-contain"
+												/>
+												<div className="text-[2vh] flex items-center justify-center font-bold text-[#fafafa]">{partnerCard.player}</div>
+											</div>
+
 										)
 									})
 								}

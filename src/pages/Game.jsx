@@ -13,6 +13,7 @@ import Info from '../components/Info';
 import GameStartOverlay from '../components/GameStartOverlay'
 import GameOverOverlay from '../components/GameOverOverlay'
 import GameHistoryOverlay from '../components/GameHistoryOverlay'
+import LastRoundOverlay from '../components/LastRoundOverlay.jsx'
 
 import { playSound } from '../utils';
 
@@ -31,12 +32,14 @@ const Game = () => {
 	const [playerGameState, setPlayerGameState] = useState(null);
 	const [gameResults, setGameResults] = useState(null);
 	const [historyOpen, setHistoryOpen] = useState(false);
+	const [lastRoundOpen, setLastRoundOpen] = useState(false);
 
 	const [systemMessages, setSystemMessages] = useState([]);
 	const [userMessages, setUserMessages] = useState([]);
 	
 
 	const socketRef = useRef(null);
+	const publicGameStateRef = useRef(null);
 
 	useEffect(() => {
 		if(!user || roomId == "") {
@@ -63,6 +66,8 @@ const Game = () => {
 		});
 
 		socket.on('gameStateUpdate', (data) => {
+			publicGameStateRef.current = data.public;
+
 			setOverlayOpen(false);
 			console.log(data);
 			setPublicGameState(data.public);
@@ -77,6 +82,19 @@ const Game = () => {
 					playSound('defeat')
 				}
 
+			}
+		});
+
+		socket.on('cardPlayed', (data) => {
+			playSound('card');
+
+			const partnerCards = publicGameStateRef.current?.partnerCards ?? [];
+
+			if (partnerCards.some(partnerCard =>
+				partnerCard.suit === data.card.suit &&
+				partnerCard.number === data.card.number
+			)) {
+				playSound('partner');
 			}
 		});
 
@@ -123,6 +141,12 @@ const Game = () => {
 		</div>
 
 		<div className="portrait:hidden">
+			{lastRoundOpen && (
+				<LastRoundOverlay lastRound={publicGameState.lastRound} theme={theme} onClose={() => setLastRoundOpen(false)}/>
+			)}
+		</div>
+
+		<div className="portrait:hidden">
 			{publicGameState?.stage == "gameOver" && (
 				<GameOverOverlay socket={socketRef.current} user={user} memberList={memberList} pgs={publicGameState} gameResults={gameResults}/>
 			)}
@@ -148,7 +172,7 @@ const Game = () => {
 			}
 			{
 				publicGameState?.stage == "playing" && (
-					<Round theme={theme} socket={socketRef.current} user={user} pgs={publicGameState}/>
+					<Round theme={theme} socket={socketRef.current} pgs={publicGameState}/>
 				)
 			}
 			</div>
@@ -179,23 +203,42 @@ const Game = () => {
 			<div className="h-full col-start-4 row-start-1 row-span-2 bg-[#2c3839] p-2 border-l-[2px] border-[#a56d00] pointer-events-auto">
 				<div className="h-full flex flex-col bg-[#202c2d] p-1 rounded-lg gap-1">
 					<div className="rounded-lg bg-[#2c3839] flex justify-between items-center text-[#fcfdfc] font-bold text-[3vh] h-[5vh] shrink-0 px-3">
-					<span>Room: {roomId}</span>
-					{(gameResults?.length > 0) && (
-						<button
-							onClick={() => setHistoryOpen(true)}
-							className="text-[#aaaaaa] hover:text-[#fafafa] text-[1vw] font-normal transition-colors"
-						>
-							History ({gameResults.length})
-						</button>
-					)}
-				</div>
+						<span>Room: {roomId}</span>
+
+					</div>
+
 					<div className="h-[45vh] shrink-0">
 						<Info socket={socketRef.current} pgs={publicGameState} user={user} theme={theme}/>
 					</div>
+
+					<div className="rounded-lg bg-[#2c3839] flex justify-between items-center text-[#fcfdfc] font-bold text-[3vh] h-[4vh] shrink-0 px-3">
+						{(publicGameState?.lastRound?.length > 0) && (
+								<div className="flex 1 min-h-0 shrink-0">
+										<button
+											onClick={() => setLastRoundOpen(true)}
+											className="text-[#0092ff] hover:text-[#fafafa] text-[1vw] font-normal transition-colors"
+										>
+											Last Round
+										</button>
+								</div>
+						)}
+
+						{(gameResults?.length > 0) && (
+							<button
+								onClick={() => setHistoryOpen(true)}
+								className="text-[#aaaaaa] hover:text-[#fafafa] text-[1vw] font-normal transition-colors"
+							>
+								Game History ({gameResults.length})
+							</button>
+						)}
+
+					</div>
+
 					<div className="flex-1 min-h-0">
 						<ChatBox socket={socketRef.current} user={user} systemMessages={systemMessages} userMessages={userMessages}/>
 					</div>
-				</div>
+
+					</div>
 			</div>
 		</div>			
 		</>
